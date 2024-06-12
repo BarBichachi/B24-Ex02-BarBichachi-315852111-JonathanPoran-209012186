@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34916.146
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Program", "Program.csproj", "{BE28DCF0-0DA1-4294-80F1-39F1516827C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemoryGameLogic", "MemoryGameLogic\MemoryGameLogic.csproj", "{7D3EBE1E-083E-461C-BFDE-F7FA3E746313}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI", "UI\UI.csproj", "{6FA63E16-0D8C-49AB-A5B5-330BF6F4DB12}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE28DCF0-0DA1-4294-80F1-39F1516827C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE28DCF0-0DA1-4294-80F1-39F1516827C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE28DCF0-0DA1-4294-80F1-39F1516827C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE28DCF0-0DA1-4294-80F1-39F1516827C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D3EBE1E-083E-461C-BFDE-F7FA3E746313}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D3EBE1E-083E-461C-BFDE-F7FA3E746313}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D3EBE1E-083E-461C-BFDE-F7FA3E746313}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D3EBE1E-083E-461C-BFDE-F7FA3E746313}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FA63E16-0D8C-49AB-A5B5-330BF6F4DB12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FA63E16-0D8C-49AB-A5B5-330BF6F4DB12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FA63E16-0D8C-49AB-A5B5-330BF6F4DB12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FA63E16-0D8C-49AB-A5B5-330BF6F4DB12}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CAA60BC5-C5A4-46FE-A2DC-56CE1D4DFC72}
+	EndGlobalSection
+EndGlobal
