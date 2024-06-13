@@ -1,7 +1,149 @@
 ﻿using System;
+using MemoryGameLogic;
 
 public class UI
 {
+    public static Player[] SetPlayers()
+    {
+        Player[] playersArray = new Player[2];
+
+        playersArray[0] = setFirstPlayer();
+        playersArray[1] = setSecondPlayer();
+
+        return playersArray;
+    }
+
+    private static Player setFirstPlayer()
+    {
+        Console.WriteLine("Please enter your player name: ");
+        string firstPlayerName = Console.ReadLine();
+
+        return new Player(firstPlayerName, ePlayerType.Human); ;
+    }
+
+    private static Player setSecondPlayer()
+    {
+        bool isValidInput = false;
+
+        Console.WriteLine("Who do you want to play against?");
+        Console.WriteLine("1. Computer");
+        Console.WriteLine("2. Another player");
+
+        // TODO
+        //int userChoice = UI.GetIntValues((int)ePlayerType.Computer, (int)ePlayerType.Human, "choice");
+
+        //if (userChoice == (int)ePlayerType.Computer)
+        //{
+        //    m_Players[1] = new Player("Computer");
+        //}
+        //else // Human
+        //{
+        //    m_Players[1] = new Player();
+        //}
+
+        return new Player("Jonathan", ePlayerType.Computer);
+    }
+
+    public static void RunNewGame(MemoryGame i_CurrentGame)
+    {
+        InitiateBoardDimensions(/*ref(?) TODO*/ i_CurrentGame);
+        i_CurrentGame.InitializeMemoryGame();
+        PrintBoard(/*ref(?) TODO i_CurrentGame.GetBoard()*/);
+
+        while (i_CurrentGame.IsGameStillRunning())
+        {
+            ePlayerTurnResult playerTurnResult = i_CurrentGame.PlayTurn();
+
+            if (playerTurnResult == ePlayerTurnResult.PlayerQuit)
+            {
+                break;
+            }
+            else if (playerTurnResult == ePlayerTurnResult.DidNotFlipPair)
+            {
+                i_CurrentGame.NextPlayer();
+            }
+        }
+
+
+
+
+
+        while (m_GameStatus == eGameStatus.InProgress)
+        {
+
+            bool currentPlayerIsPlaying = true;
+
+            while (currentPlayerIsPlaying)
+            {
+                ePlayerTurnResult playerTurnResult = m_Players[(int)m_CurrentPlayer].PlayTurn();
+
+                if (playerTurnResult == ePlayerTurnResult.FlippedPair)
+                {
+                    m_gameBoard.PairRevealed();
+
+                    if (AreThereAnyCardsToReveal())
+                    {
+                        m_GameStatus = eGameStatus.Completed;
+                        break;
+                    }
+                }
+                else if (playerTurnResult == ePlayerTurnResult.DidNotFlipPair)
+                {
+                    NextPlayer();
+                }
+                else
+                {
+                    m_GameStatus = eGameStatus.PlayerQuit;
+                    break;
+                }
+            }
+        }
+    }
+
+    public static void InitiateBoardDimensions(MemoryGame i_CurrentGame)
+    {
+        eBoardDimensionsValidation boardDimensionsValidation = eBoardDimensionsValidation.OutOfAllowedRange;
+
+        while (boardDimensionsValidation != eBoardDimensionsValidation.ValidDimensions)
+        {
+            int minValue = i_CurrentGame.GetMin();
+            int maxValue = i_CurrentGame.GetMax();
+
+            Console.WriteLine("Board dimensions rules:");
+            Console.WriteLine($"1. Allowed heights - min ({minValue}), max ({maxValue}),");
+            Console.WriteLine($"2. Allowed width - min ({minValue}), max ({maxValue}),");
+            Console.WriteLine("3. Height*Width must be even!");
+
+            GetBoardDimensions(out int width, out int height, /*ref(?) TODO*/i_CurrentGame);
+            boardDimensionsValidation = i_CurrentGame.SetBoardDimensions(width, height);
+
+            switch (boardDimensionsValidation)
+            {
+                case eBoardDimensionsValidation.OddCardCount:
+                    Console.WriteLine("Odd card count! try again.");
+                    break;
+                case eBoardDimensionsValidation.OutOfAllowedRange:
+                    Console.WriteLine("Out of allowed range! try again.");
+                    break;
+                case eBoardDimensionsValidation.ValidDimensions:
+                    Console.WriteLine("Valid board dimensions, starting game.");
+                    break;
+            }
+        }
+    }
+
+    public static void GetBoardDimensions(out int io_Width, out int io_Height, MemoryGame i_CurrentGame)
+    {
+        // USE I_CURRENTGAME TO KNOW THE MAXIMUM/MINIMUM DIMENSIONS
+        // TODO
+        // only validate that it's an integer, nothing more.
+
+        //int boardWidth = UI.GetIntValues(r_gameBoardMinSize, r_gameBoardMaxSize, "board width");
+        //int boardHeight = UI.GetIntValues(r_gameBoardMinSize, r_gameBoardMaxSize, "board height");
+        io_Width = 4;
+        io_Height = 4;
+    }
+
     public static string GetInput()
     {
         return Console.ReadLine();
@@ -74,7 +216,7 @@ public class UI
         return result;
     }
 
-    public static void PrintBoard(/*Board i_gameBoard*/)
+    public static void PrintBoard(/*ref(?) TODO i_CurrentGame.GetBoard()*/)
     {
     //    PRINT THE BOARD
     //    TODO
@@ -113,5 +255,24 @@ public class UI
         }
 
         return desiredLocation;
+    }
+
+    public static bool AskPlayerForAnotherGame()
+    {
+        Console.WriteLine("Do you want to play another game? (Y/N)"); 
+        //keepPlaying = UI.GetInput(); -- (Y/N)
+
+        return true;
+    }
+
+    public static void EndedBecauseOfQ()
+    {
+        Console.WriteLine("The game ended because the 'Q' key was pressed.");
+    }
+
+    public static void ProgramEnded()
+    {
+        Console.WriteLine("Thank you for playing! see you next time.");
+
     }
 }

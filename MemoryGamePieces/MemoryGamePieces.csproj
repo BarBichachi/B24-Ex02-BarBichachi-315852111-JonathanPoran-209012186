@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BE28DCF0-0DA1-4294-80F1-39F1516827C9}</ProjectGuid>
+    <ProjectGuid>{0BDE4822-0325-4A55-8DE4-0F34944B4AE5}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>B24_Ex02_BarBichachi_315852111_JonathanPoran_209012186</RootNamespace>
-    <AssemblyName>B24 Ex02 BarBichachi 315852111 JonathanPoran 209012186</AssemblyName>
+    <RootNamespace>MemoryGamePieces</RootNamespace>
+    <AssemblyName>MemoryGamePieces</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -36,21 +36,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="MemoryGameLogic\MemoryGameLogic.csproj">
-      <Project>{7d3ebe1e-083e-461c-bfde-f7fa3e746313}</Project>
-      <Name>MemoryGameLogic</Name>
-    </ProjectReference>
-    <ProjectReference Include="MemoryGamePieces\MemoryGamePieces.csproj">
-      <Project>{0bde4822-0325-4a55-8de4-0f34944b4ae5}</Project>
-      <Name>MemoryGamePieces</Name>
-    </ProjectReference>
-    <ProjectReference Include="UI\UI.csproj">
-      <Project>{6fa63e16-0d8c-49ab-a5b5-330bf6f4db12}</Project>
-      <Name>UI</Name>
-    </ProjectReference>
+    <Compile Include="Board.cs" />
+    <Compile Include="Card.cs" />
+    <Compile Include="Player.cs" />
+    <Compile Include="Enums.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

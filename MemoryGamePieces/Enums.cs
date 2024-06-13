@@ -25,4 +25,11 @@
         Completed,
         PlayerQuit
     }
+
+    public enum eBoardDimensionsValidation
+    {
+        OddCardCount,
+        OutOfAllowedRange,
+        ValidDimensions
+    }
 }

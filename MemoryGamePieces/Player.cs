@@ -1,30 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MemoryGameLogic
+﻿namespace MemoryGameLogic
 {
     public class Player
     {
         private string m_Name;
         private int m_Score;
-        private bool m_IsPlaying;
-        private bool m_IsPerson = false;
         private ePlayerType m_PlayerType = ePlayerType.Human;
 
-        public Player()
-        {
-            UI.DisplayMessageNewLine("Please enter your player name: ");
-            m_Name = UI.GetInput();
-            m_IsPerson = true;
-        }
-
-        public Player(string i_Name)
+        public Player(string i_Name, ePlayerType i_PlayerType)
         {
             m_Name = i_Name;
-            m_PlayerType = ePlayerType.Computer;
+            m_Score = 0;
+            m_PlayerType = i_PlayerType;
+        }
+
+        public void ResetScore()
+        {
+            m_Score = 0;
+        }
+
+        public ePlayerType GetPlayerType()
+        {
+            return m_PlayerType;
         }
 
         public ePlayerTurnResult PlayTurn()

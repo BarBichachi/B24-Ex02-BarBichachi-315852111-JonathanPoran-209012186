@@ -1,10 +1,4 @@
-﻿using System;
-using MemoryGameLogic;
-
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MemoryGameLogic;
 
 namespace B24_Ex02_BarBichachi_315852111_JonathanPoran_209012186
 {
@@ -12,28 +6,33 @@ namespace B24_Ex02_BarBichachi_315852111_JonathanPoran_209012186
     {
         static void Main()
         {
-            bool keepPlaying = true;
+            bool wantToPlay = true;
 
-            MemoryGame memoryGame = new MemoryGame();
+            // 1-3
+            Player[] playersArray = UI.SetPlayers();
+            MemoryGame memoryGame = new MemoryGame(ref playersArray);
 
-            while (memoryGame.GetGameStatus() != eGameStatus.InProgress)
+            while (wantToPlay)
             {
-                memoryGame.PlayGame();
+                // 4-12 (INCLUDING 14)
+                UI.RunNewGame(memoryGame);
 
-                if (memoryGame.GetGameStatus() == eGameStatus.Completed)
+                // 13 (DID THE GAME ENDED BECAUSE IT WAS COMPLETED OR PRESSED Q
+                if (memoryGame.IsGameStillRunning())
                 {
-                    UI.DisplayMessageNewLine("Do you want to play another game? (Y/N)"); 
-                    //keepPlaying = UI.GetInput(); -- (Y/N)
-                    //memoryGame.WantAnotherGame();
+                    UI.EndedBecauseOfQ();
+                    wantToPlay = false;
                 }
                 else
                 {
-                    UI.DisplayMessageNewLine("The game ended because the 'Q' key was pressed.");
-                    keepPlaying = false;
+                    // TODO
+                    // Sum game statistics
+                    // UI.GameStatistics(memoryGame);
+                    wantToPlay = UI.AskPlayerForAnotherGame();
                 }
             }
-            UI.DisplayMessageNewLine("Thank you for playing! see you next time.");
 
+            UI.ProgramEnded();
         }
     }
 }

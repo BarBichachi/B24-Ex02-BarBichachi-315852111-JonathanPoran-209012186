@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MemoryGameLogic
 {
     public class MemoryGame
     {
-        private eGameStatus m_GameStatus = eGameStatus.InProgress;
-        private Player[] m_Players = new Player[2];
+        private bool m_GameIsRunning = true;
+        private Player[] m_Players;
         private eCurrentPlayer m_CurrentPlayer = eCurrentPlayer.FirstPlayer;
 
         // Board minimum & maximum dimensions
@@ -18,98 +13,82 @@ namespace MemoryGameLogic
         private readonly int r_gameBoardMinSize = 4;
         private readonly int r_gameBoardMaxSize = 6;
 
-        public MemoryGame()
+        public MemoryGame(ref Player[] i_PlayersArray)
         {
-            m_Players[0] = new Player();
-            createSecondPlayerByType();
+            m_Players = i_PlayersArray;
         }
 
-        public void PlayGame()
+        public eBoardDimensionsValidation SetBoardDimensions(int i_Width, int i_Height)
         {
-            createBoard();
-            UI.PrintBoard();
+            eBoardDimensionsValidation result = eBoardDimensionsValidation.ValidDimensions;
 
-            while (m_GameStatus == eGameStatus.InProgress)
+            if ((i_Width * i_Height) % 2 == 1)
             {
-                bool currentPlayerIsPlaying = true;
+                result = eBoardDimensionsValidation.OddCardCount;
+            }
+            else if (i_Width < r_gameBoardMinSize || i_Width > r_gameBoardMaxSize || 
+                     i_Height < r_gameBoardMinSize || i_Height > r_gameBoardMaxSize)
+            {
+                result = eBoardDimensionsValidation.OutOfAllowedRange;
+            }
+            else
+            {
+                GenerateBoard(i_Width, i_Height);
+            }
 
-                while (currentPlayerIsPlaying)
-                {
-                    ePlayerTurnResult playerTurnResult = m_Players[(int)m_CurrentPlayer].PlayTurn();
+            return result;
+        }
 
-                    if (playerTurnResult == ePlayerTurnResult.FlippedPair)
-                    {
-                        m_gameBoard.PairRevealed();
+        public void GenerateBoard(int i_Width, int i_Height)
+        {
+            m_gameBoard = new Board(i_Width, i_Height);
+        }
 
-                        if (AreThereAnyCardsToReveal())
-                        {
-                            m_GameStatus = eGameStatus.Completed;
-                            break;
-                        }
-                    }
-                    else if (playerTurnResult == ePlayerTurnResult.DidNotFlipPair)
-                    {
-                        NextPlayer();
-                    }
-                    else
-                    {
-                        m_GameStatus = eGameStatus.PlayerQuit;
-                        break;
-                    }
-                }
+        public int GetMin()
+        {
+            return r_gameBoardMinSize;
+        }
+
+        public int GetMax()
+        {
+            return r_gameBoardMaxSize;
+        }
+
+        public void InitializeMemoryGame()
+        {
+            m_GameIsRunning = true;
+            m_CurrentPlayer = eCurrentPlayer.FirstPlayer;
+
+            foreach (Player player in m_Players)
+            {
+                player.ResetScore();
             }
         }
 
-        private void createSecondPlayerByType()
-        {
-            bool isValidInput = false;
-
-            UI.DisplayMessageNewLine("Who do you want to play against?");
-            UI.DisplayMessageNewLine("1. Computer");
-            UI.DisplayMessageNewLine("2. Another player");
-
-            int userChoice = UI.GetIntValues((int)ePlayerType.Computer, (int)ePlayerType.Human, "choice");
-
-            if (userChoice == (int)ePlayerType.Computer)
-            {
-                m_Players[1] = new Player("Computer");
-            }
-            else // Human
-            {
-                m_Players[1] = new Player();
-            }
-        }
-
-        private void createBoard()
-        {
-            // TODO
-            //UI.DisplayMessageNewLine("Board dimensions example - 6x4");
-            //UI.DisplayMessageInLine("Please enter your board dimensions ( <Width>x<Height> ): ");
-
-            int boardWidth = UI.GetIntValues(r_gameBoardMinSize, r_gameBoardMaxSize, "board width");
-            int boardHeight = UI.GetIntValues(r_gameBoardMinSize, r_gameBoardMaxSize, "board height");
-
-            m_gameBoard.SetBoardDimensions(boardWidth, boardHeight);
-        }
-
-        private bool AreThereAnyCardsToReveal()
+        private bool areThereAnyCardsToReveal()
         {
             return m_gameBoard.GetNumOfPairsLeft() != 0;
         }
 
-        private void NextPlayer()
+        public ePlayerType GetCurrentPlayerType()
+        {
+            return m_Players[(int)m_CurrentPlayer].GetPlayerType();
+        }
+
+        public void NextPlayer()
         {
             int nextValue = ((int)m_CurrentPlayer + 1) % Enum.GetValues(typeof(eCurrentPlayer)).Length;
             m_CurrentPlayer = (eCurrentPlayer)nextValue;
         }
 
-        public eGameStatus GetGameStatus()
+        public bool IsGameStillRunning()
         {
-            return m_GameStatus;
+            return m_GameIsRunning;
         }
+
         public void WantAnotherGame()
         {
-            m_GameStatus = eGameStatus.InProgress;
+            m_GameIsRunning = eGameStatus.InProgress;
         }
     }
 }

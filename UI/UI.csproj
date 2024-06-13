@@ -46,5 +46,15 @@
       <HintPath>..\..\..\..\..\..\Temp\Ex02.ConsoleUtils.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MemoryGameLogic\MemoryGameLogic.csproj">
+      <Project>{7d3ebe1e-083e-461c-bfde-f7fa3e746313}</Project>
+      <Name>MemoryGameLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MemoryGamePieces\MemoryGamePieces.csproj">
+      <Project>{0bde4822-0325-4a55-8de4-0f34944b4ae5}</Project>
+      <Name>MemoryGamePieces</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

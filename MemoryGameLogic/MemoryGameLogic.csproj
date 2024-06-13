@@ -39,17 +39,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Board.cs" />
-    <Compile Include="Card.cs" />
-    <Compile Include="ComputerPlayer.cs" />
     <Compile Include="MemoryGame.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="PlayerEnums.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\UI\UI.csproj">
-      <Project>{6fa63e16-0d8c-49ab-a5b5-330bf6f4db12}</Project>
-      <Name>UI</Name>
+    <ProjectReference Include="..\MemoryGamePieces\MemoryGamePieces.csproj">
+      <Project>{0bde4822-0325-4a55-8de4-0f34944b4ae5}</Project>
+      <Name>MemoryGamePieces</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
