@@ -2,7 +2,7 @@
 {
     public class Card
     {
-        public char m_Letter { get; set; }
+        private char m_Letter;
         private bool m_IsFaceUp = false;
 
         public Card(char i_Letter)
@@ -18,6 +18,28 @@
         public bool IsFaceUp()
         {
             return m_IsFaceUp;
+        }
+
+        public char ShowCard()
+        {
+            char letter = ' ';
+
+            if (m_IsFaceUp)
+            {
+                letter = m_Letter;
+            }
+
+            return letter;
+        }
+
+        internal char GetLetter()
+        {
+            return m_Letter;
+        }
+
+        internal void SetLetter(char i_Letter)
+        {
+            m_Letter = i_Letter;
         }
     }
 }

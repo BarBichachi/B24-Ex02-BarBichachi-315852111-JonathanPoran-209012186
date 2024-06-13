@@ -3,51 +3,56 @@ namespace MemoryGamePieces
 {
     public class Board
     {
-        private static Random random = new Random();
-        private static int s_Width;
-        private static int s_Height;
-        private static int m_NumOfPairsLeft;
+        private readonly Random r_Random = new Random();
+        private readonly int r_Width;
+        private readonly int r_Height;
+        private int m_NumOfPairsLeft;
         private Card[,] m_Cards;
 
         public Board(int i_Width, int i_Height)
         {
-            s_Width = i_Width;
-            s_Height = i_Height;
+            r_Width = i_Width;
+            r_Height = i_Height;
             m_NumOfPairsLeft = (i_Width * i_Height) / 2;
             generatePairsOnBoard();
-            //shuffleBoard();
+            shuffleBoard();
         }
 
         public int GetNumOfColumns()
         {
-            return s_Width;
+            return r_Width;
         }
 
         public int GetNumOfRows()
         {
-            return s_Height;
+            return r_Height;
+        }
+
+        public void NewPairFound()
+        {
+            m_NumOfPairsLeft--;
         }
 
         private void generatePairsOnBoard()
         {
-            m_Cards = new Card[s_Width, s_Height];
-            bool isSecondChar = false;
+            m_Cards = new Card[r_Width, r_Height];
+            bool isSecondLetter = false;
             char letter = 'A';
 
-            for (int column = 0; column < s_Width; column++)
+            for (int row = 0; row < r_Height; row++)
             {
-                for (int row = 0; row < s_Height; row++)
+                for (int column = 0; column < r_Width; column++)
                 {
-                    m_Cards[column, row]= new Card(letter);
+                    m_Cards[column, row] = new Card(letter);
 
-                    if (!isSecondChar)
+                    if (!isSecondLetter)
                     {
-                        isSecondChar = true;
+                        isSecondLetter = true;
                     }
                     else
                     {
                         letter++;
-                        isSecondChar = false;
+                        isSecondLetter = false;
                     }
                 }
             }
@@ -55,18 +60,20 @@ namespace MemoryGamePieces
 
         private void shuffleBoard()
         {
-            int numOfShuffles = s_Width * s_Height;
+            int numOfShuffles = r_Width * r_Height;
             
             for (int i = 0; i < numOfShuffles; i++)
             {
-                swapCards(m_Cards[random.Next(s_Width), random.Next(s_Height)]
-                        , m_Cards[random.Next(s_Width), random.Next(s_Height)]);
+                swapCards(m_Cards[r_Random.Next(r_Width), r_Random.Next(r_Height)]
+                        , m_Cards[r_Random.Next(r_Width), r_Random.Next(r_Height)]);
             }
         }
 
         private void swapCards(Card i_FirstCard, Card i_SecondCard)
         {
-            (i_FirstCard.m_Letter, i_SecondCard.m_Letter) = (i_SecondCard.m_Letter, i_FirstCard.m_Letter);
+            char tempFirstCardLetter = i_FirstCard.GetLetter();
+            i_FirstCard.SetLetter(i_SecondCard.GetLetter());
+            i_SecondCard.SetLetter(tempFirstCardLetter);
         }
 
         public char GetLetterOfCardByStringLocation(string i_ValidLocation)
@@ -74,18 +81,14 @@ namespace MemoryGamePieces
             int column = (int)i_ValidLocation[0] - 'A';
             int row = (int)(i_ValidLocation[1] - '1');
 
-            return m_Cards[column, row].m_Letter;
+            return m_Cards[column, row].ShowCard();
         }
 
-        public char GetLetterOfCardByLocation(int i_Row, int i_Column)
+        public char GetLetterOfCardByLocation(int i_Column, int i_Row)
         {
-            return m_Cards[i_Column, i_Row].m_Letter;
+            return m_Cards[i_Column, i_Row].ShowCard();
         }
 
-        public void PairRevealed()
-        {
-            m_NumOfPairsLeft--;
-        }
         public int GetNumOfPairsLeft()
         {
             return m_NumOfPairsLeft;
@@ -104,7 +107,7 @@ namespace MemoryGamePieces
             int column = (int)i_desiredLocation[0] - 'A';
             int row = (int)(i_desiredLocation[1] - '1');
 
-            return (column >= 0 && column < s_Width && row >= 0 && row < s_Height);
+            return (column >= 0 && column < r_Width && row >= 0 && row < r_Height);
         }
 
         public bool TryFlipCard(string i_ValidLocation)

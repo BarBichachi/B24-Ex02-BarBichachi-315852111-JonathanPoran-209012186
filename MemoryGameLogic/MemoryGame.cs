@@ -7,17 +7,15 @@ namespace MemoryGameLogic
     public class MemoryGame
     {
         private bool m_GameIsRunning = true;
-        private Player[] m_Players;
+        private readonly Player[] r_Players;
         private eCurrentPlayer m_CurrentPlayer = eCurrentPlayer.FirstPlayer;
-
-        // Board minimum & maximum dimensions
         private Board m_gameBoard;
         private readonly int r_gameBoardMinSize = 4;
         private readonly int r_gameBoardMaxSize = 6;
 
-        public MemoryGame(ref Player[] i_PlayersArray)
+        public MemoryGame(Player[] i_PlayersArray)
         {
-            m_Players = i_PlayersArray;
+            r_Players = i_PlayersArray;
         }
 
         public eBoardDimensionsValidation SetBoardDimensions(int i_Width, int i_Height)
@@ -46,12 +44,12 @@ namespace MemoryGameLogic
             m_gameBoard = new Board(i_Width, i_Height);
         }
 
-        public int GetMin()
+        public int GetMinBoardDimension()
         {
             return r_gameBoardMinSize;
         }
 
-        public int GetMax()
+        public int GetMaxBoardDimension()
         {
             return r_gameBoardMaxSize;
         }
@@ -61,7 +59,7 @@ namespace MemoryGameLogic
             m_GameIsRunning = true;
             m_CurrentPlayer = eCurrentPlayer.FirstPlayer;
 
-            foreach (Player player in m_Players)
+            foreach (Player player in r_Players)
             {
                 player.ResetScore();
             }
@@ -81,7 +79,6 @@ namespace MemoryGameLogic
         public bool ProcessedMatch(string i_FirstValidLocation, string i_SecondValidLocation)
         {
             bool isThereAMatch = false;
-
             char firstCardLetter = m_gameBoard.GetLetterOfCardByStringLocation(i_FirstValidLocation);
             char secondCardLetter = m_gameBoard.GetLetterOfCardByStringLocation(i_SecondValidLocation);
 
@@ -89,6 +86,7 @@ namespace MemoryGameLogic
             {
                 isThereAMatch = true;
                 addScoreToCurrentPlayer();
+                m_gameBoard.NewPairFound();
             }
 
             return isThereAMatch;
@@ -102,12 +100,17 @@ namespace MemoryGameLogic
 
         private void addScoreToCurrentPlayer()
         {
-            m_Players[(int)m_CurrentPlayer].AddScore();
+            r_Players[(int)m_CurrentPlayer].AddScore();
         }
 
         public string GetCurrentPlayerName()
         {
-            return m_Players[(int)m_CurrentPlayer].GetName();
+            return r_Players[(int)m_CurrentPlayer].GetName();
+        }
+
+        public ePlayerType GetCurrentPlayerType()
+        {
+            return r_Players[(int)m_CurrentPlayer].GetPlayerType();
         }
 
         public bool EndGameIfFinished()
@@ -121,12 +124,17 @@ namespace MemoryGameLogic
 
         public Player GetWinner()
         {
-            return m_Players.OrderByDescending(player => player.GetScore()).First();
+            return r_Players.OrderByDescending(player => player.GetScore()).First();
+        }
+
+        public Player GetLoser()
+        {
+            return r_Players.OrderByDescending(player => player.GetScore()).Last();
         }
 
         public bool IsTheGameEndedAsTie()
         {
-            return m_Players[0].GetScore() == m_Players[1].GetScore();
+            return r_Players[0].GetScore() == r_Players[1].GetScore();
         }
 
         public bool IsLocationOutOfRange(string i_desiredLocation)
@@ -139,9 +147,22 @@ namespace MemoryGameLogic
             return m_gameBoard.TryFlipCard(i_ValidLocation);
         }
 
-        public ref Board GetBoard()
+        public Board GetBoard()
         {
-            return ref m_gameBoard;
+            return m_gameBoard;
+        }
+
+        public string ShuffleRandomBoardLocation()
+        {
+            Random random = new Random();
+
+            int maxColumn = m_gameBoard.GetNumOfColumns();
+            int maxRow = m_gameBoard.GetNumOfRows();
+
+            char randomColumn = (char)('A' + random.Next(maxColumn));
+            char randomRow = (char)('1' + random.Next(maxRow));
+            
+            return string.Concat(randomColumn, randomRow);
         }
     }
 }

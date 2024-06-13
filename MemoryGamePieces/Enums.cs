@@ -12,20 +12,6 @@
         SecondPlayer
     }
 
-    public enum ePlayerTurnResult
-    {
-        DidNotFlipPair,
-        FlippedPair,
-        PlayerQuit
-    }
-
-    public enum eGameStatus
-    {
-        InProgress,
-        Completed,
-        PlayerQuit
-    }
-
     public enum eBoardDimensionsValidation
     {
         OddCardCount,
