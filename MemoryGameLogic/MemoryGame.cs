@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using MemoryGamePieces;
 
 namespace MemoryGameLogic
 {
@@ -65,16 +67,6 @@ namespace MemoryGameLogic
             }
         }
 
-        private bool areThereAnyCardsToReveal()
-        {
-            return m_gameBoard.GetNumOfPairsLeft() != 0;
-        }
-
-        public ePlayerType GetCurrentPlayerType()
-        {
-            return m_Players[(int)m_CurrentPlayer].GetPlayerType();
-        }
-
         public void NextPlayer()
         {
             int nextValue = ((int)m_CurrentPlayer + 1) % Enum.GetValues(typeof(eCurrentPlayer)).Length;
@@ -86,9 +78,70 @@ namespace MemoryGameLogic
             return m_GameIsRunning;
         }
 
-        public void WantAnotherGame()
+        public bool ProcessedMatch(string i_FirstValidLocation, string i_SecondValidLocation)
         {
-            m_GameIsRunning = eGameStatus.InProgress;
+            bool isThereAMatch = false;
+
+            char firstCardLetter = m_gameBoard.GetLetterOfCardByStringLocation(i_FirstValidLocation);
+            char secondCardLetter = m_gameBoard.GetLetterOfCardByStringLocation(i_SecondValidLocation);
+
+            if (firstCardLetter == secondCardLetter)
+            {
+                isThereAMatch = true;
+                addScoreToCurrentPlayer();
+            }
+
+            return isThereAMatch;
+        }
+
+        public void FlipCardsFaceDown(string i_FirstValidLocation, string i_SecondValidLocation)
+        {
+            m_gameBoard.FlipCardFaceDown(i_FirstValidLocation);
+            m_gameBoard.FlipCardFaceDown(i_SecondValidLocation);
+        }
+
+        private void addScoreToCurrentPlayer()
+        {
+            m_Players[(int)m_CurrentPlayer].AddScore();
+        }
+
+        public string GetCurrentPlayerName()
+        {
+            return m_Players[(int)m_CurrentPlayer].GetName();
+        }
+
+        public bool EndGameIfFinished()
+        {
+            if (m_gameBoard.GetNumOfPairsLeft() == 0)
+            {
+                m_GameIsRunning = false;
+            }
+            return !m_GameIsRunning;
+        }
+
+        public Player GetWinner()
+        {
+            return m_Players.OrderByDescending(player => player.GetScore()).First();
+        }
+
+        public bool IsTheGameEndedAsTie()
+        {
+            return m_Players[0].GetScore() == m_Players[1].GetScore();
+        }
+
+        public bool IsLocationOutOfRange(string i_desiredLocation)
+        {
+            return m_gameBoard.IsValidLocation(i_desiredLocation);
+        }
+
+        public bool FlipCardToFaceUp(string i_ValidLocation)
+        {
+            return m_gameBoard.TryFlipCard(i_ValidLocation);
+        }
+
+        public ref Board GetBoard()
+        {
+            return ref m_gameBoard;
         }
     }
 }

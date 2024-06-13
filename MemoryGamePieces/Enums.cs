@@ -1,4 +1,4 @@
-﻿namespace MemoryGameLogic
+﻿namespace MemoryGamePieces
 {
     public enum ePlayerType
     {
@@ -14,8 +14,8 @@
 
     public enum ePlayerTurnResult
     {
-        FlippedPair,
         DidNotFlipPair,
+        FlippedPair,
         PlayerQuit
     }
 

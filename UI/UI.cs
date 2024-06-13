@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Diagnostics.Eventing.Reader;
+using System.Linq;
+using System.Threading;
 using MemoryGameLogic;
+using MemoryGamePieces;
 
 public class UI
 {
@@ -7,97 +11,142 @@ public class UI
     {
         Player[] playersArray = new Player[2];
 
-        playersArray[0] = setFirstPlayer();
+        playersArray[0] = setPlayer();
         playersArray[1] = setSecondPlayer();
 
         return playersArray;
     }
 
-    private static Player setFirstPlayer()
+    private static Player setPlayer()
     {
-        Console.WriteLine("Please enter your player name: ");
+        Console.Write("Please enter your player name: ");
         string firstPlayerName = Console.ReadLine();
 
-        return new Player(firstPlayerName, ePlayerType.Human); ;
+        return new Player(firstPlayerName, ePlayerType.Human);
     }
 
     private static Player setSecondPlayer()
     {
+        Player secondPlayer = null;
         bool isValidInput = false;
 
-        Console.WriteLine("Who do you want to play against?");
-        Console.WriteLine("1. Computer");
-        Console.WriteLine("2. Another player");
+        do
+        {
+            Console.WriteLine();
+            Console.WriteLine("Who do you want to play against?");
+            Console.WriteLine("1. Computer");
+            Console.WriteLine("2. Another player");
+            Console.Write("Your choice is: ");
 
-        // TODO
-        //int userChoice = UI.GetIntValues((int)ePlayerType.Computer, (int)ePlayerType.Human, "choice");
+            string userAnswer = Console.ReadLine();
 
-        //if (userChoice == (int)ePlayerType.Computer)
-        //{
-        //    m_Players[1] = new Player("Computer");
-        //}
-        //else // Human
-        //{
-        //    m_Players[1] = new Player();
-        //}
+            if (userAnswer.Length == 1)
+            {
+                if (userAnswer[0] == '1')
+                {
+                    isValidInput = true;
+                    secondPlayer = new Player("Computer", ePlayerType.Computer);
+                }
+                else if (userAnswer[0] == '2')
+                {
+                    isValidInput = true;
+                    secondPlayer = setPlayer();
+                }
+                else
+                {
+                    Ex02.ConsoleUtils.Screen.Clear();
+                    Console.WriteLine("Invalid input! try again.");
+                }
+            }
+        } while (!isValidInput);
 
-        return new Player("Jonathan", ePlayerType.Computer);
+        return secondPlayer;
     }
 
     public static void RunNewGame(MemoryGame i_CurrentGame)
     {
-        InitiateBoardDimensions(/*ref(?) TODO*/ i_CurrentGame);
+        InitiateBoardDimensions(i_CurrentGame);
         i_CurrentGame.InitializeMemoryGame();
-        PrintBoard(/*ref(?) TODO i_CurrentGame.GetBoard()*/);
+        Board currentGameBoard = i_CurrentGame.GetBoard();
+        PrintBoard(currentGameBoard);
 
         while (i_CurrentGame.IsGameStillRunning())
         {
-            ePlayerTurnResult playerTurnResult = i_CurrentGame.PlayTurn();
+            Console.WriteLine($"{i_CurrentGame.GetCurrentPlayerName()}'s turn");
+            string firstChoice = getValidChoiceAndFlip(i_CurrentGame);
 
-            if (playerTurnResult == ePlayerTurnResult.PlayerQuit)
+            if (firstChoice == "Quit")
             {
                 break;
             }
-            else if (playerTurnResult == ePlayerTurnResult.DidNotFlipPair)
+
+            Ex02.ConsoleUtils.Screen.Clear();
+            PrintBoard(currentGameBoard);
+
+            string secondChoice = getValidChoiceAndFlip(i_CurrentGame);
+
+            if (secondChoice == "Quit")
             {
-                i_CurrentGame.NextPlayer();
+                break;
             }
-        }
 
+            Ex02.ConsoleUtils.Screen.Clear();
+            PrintBoard(currentGameBoard);
 
-
-
-
-        while (m_GameStatus == eGameStatus.InProgress)
-        {
-
-            bool currentPlayerIsPlaying = true;
-
-            while (currentPlayerIsPlaying)
+            if (!(i_CurrentGame.ProcessedMatch(firstChoice, secondChoice)))
             {
-                ePlayerTurnResult playerTurnResult = m_Players[(int)m_CurrentPlayer].PlayTurn();
-
-                if (playerTurnResult == ePlayerTurnResult.FlippedPair)
+                Console.WriteLine("Did not match a pair, try again next time.");
+                Thread.Sleep(2000);
+                i_CurrentGame.FlipCardsFaceDown(firstChoice, secondChoice);
+                i_CurrentGame.NextPlayer();
+                Ex02.ConsoleUtils.Screen.Clear();
+            }
+            else
+            {
+                Ex02.ConsoleUtils.Screen.Clear();
+                if (i_CurrentGame.EndGameIfFinished())
                 {
-                    m_gameBoard.PairRevealed();
-
-                    if (AreThereAnyCardsToReveal())
-                    {
-                        m_GameStatus = eGameStatus.Completed;
-                        break;
-                    }
-                }
-                else if (playerTurnResult == ePlayerTurnResult.DidNotFlipPair)
-                {
-                    NextPlayer();
+                    Console.WriteLine("Great match! you scored a point!");
                 }
                 else
                 {
-                    m_GameStatus = eGameStatus.PlayerQuit;
-                    break;
+                    Console.WriteLine("Great match! you scored a point and received another turn!");
                 }
             }
         }
+    }
+
+    private static string getValidChoiceAndFlip(MemoryGame i_CurrentGame)
+    {
+        bool isValidChoice = false;
+        string desiredLocation = string.Empty;
+
+        while (!isValidChoice)
+        {
+            desiredLocation = getLocation(i_CurrentGame);
+
+            if (desiredLocation == "Quit")
+            {
+                isValidChoice = true;
+            }
+            else
+            {
+                if (!i_CurrentGame.IsLocationOutOfRange(desiredLocation))
+                {
+                    Console.WriteLine("Your choice is outside the board dimensions!");
+                }
+                else if (!i_CurrentGame.FlipCardToFaceUp(desiredLocation))
+                {
+                    Console.WriteLine("Your choice is a card that's already flipped!");
+                }
+                else
+                {
+                    isValidChoice = true;
+                }
+            }
+        }
+
+        return desiredLocation;
     }
 
     public static void InitiateBoardDimensions(MemoryGame i_CurrentGame)
@@ -109,24 +158,25 @@ public class UI
             int minValue = i_CurrentGame.GetMin();
             int maxValue = i_CurrentGame.GetMax();
 
-            Console.WriteLine("Board dimensions rules:");
+            Console.WriteLine("\nBoard dimensions rules:");
             Console.WriteLine($"1. Allowed heights - min ({minValue}), max ({maxValue}),");
             Console.WriteLine($"2. Allowed width - min ({minValue}), max ({maxValue}),");
             Console.WriteLine("3. Height*Width must be even!");
+            Console.WriteLine();
 
-            GetBoardDimensions(out int width, out int height, /*ref(?) TODO*/i_CurrentGame);
+            GetBoardDimensions(out int width, out int height, i_CurrentGame);
             boardDimensionsValidation = i_CurrentGame.SetBoardDimensions(width, height);
 
             switch (boardDimensionsValidation)
             {
                 case eBoardDimensionsValidation.OddCardCount:
-                    Console.WriteLine("Odd card count! try again.");
+                    Console.WriteLine("Odd card count! try again.\n");
                     break;
                 case eBoardDimensionsValidation.OutOfAllowedRange:
-                    Console.WriteLine("Out of allowed range! try again.");
+                    Console.WriteLine("Out of allowed range! try again.\n");
                     break;
                 case eBoardDimensionsValidation.ValidDimensions:
-                    Console.WriteLine("Valid board dimensions, starting game.");
+                    Console.WriteLine("Valid board dimensions, starting game.\n");
                     break;
             }
         }
@@ -134,14 +184,31 @@ public class UI
 
     public static void GetBoardDimensions(out int io_Width, out int io_Height, MemoryGame i_CurrentGame)
     {
-        // USE I_CURRENTGAME TO KNOW THE MAXIMUM/MINIMUM DIMENSIONS
-        // TODO
-        // only validate that it's an integer, nothing more.
+        io_Width = 0;
+        io_Height = 0;
+        bool isValidDimensions = false;
 
-        //int boardWidth = UI.GetIntValues(r_gameBoardMinSize, r_gameBoardMaxSize, "board width");
-        //int boardHeight = UI.GetIntValues(r_gameBoardMinSize, r_gameBoardMaxSize, "board height");
-        io_Width = 4;
-        io_Height = 4;
+        do
+        {
+            Console.WriteLine("\nPlease enter your desired board dimensions. ");
+            Console.Write("Your desired width: ");
+            if ((int.TryParse(Console.ReadLine(), out io_Width)) && io_Width > 0 && io_Width <= 9)
+            {
+                Console.Write("Your desired height: ");
+                if (int.TryParse(Console.ReadLine(), out io_Height) && io_Height > 0 && io_Height <= 9)
+                {
+                    isValidDimensions = true;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid height. Please try again.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid width. Please try again.");
+            }
+        } while (!isValidDimensions);
     }
 
     public static string GetInput()
@@ -149,120 +216,100 @@ public class UI
         return Console.ReadLine();
     }
 
-    public static void DisplayMessageInLine(string i_Message)
+    public static void PrintBoard(Board currentGameBoard)
     {
-        Console.Write(i_Message);
-    }
+        Console.Write(" ");
 
-    public static void DisplayMessageNewLine(string i_Message)
-    {
-        Console.WriteLine(i_Message);
-    }
-    
-    public static int GetIntValues(int i_Min, int i_Max, string i_Variable)
-    {
-        int result = default;
-        bool isValidInput = false;
-
-        while (!isValidInput)
+        for (int i = 0; i < currentGameBoard.GetNumOfColumns(); i++)
         {
-            UI.DisplayMessageNewLine($"Please enter your {i_Variable}");
-            if (!(int.TryParse(UI.GetInput(), out result)))
-            {
-                UI.DisplayMessageNewLine("Please enter a valid integer!");
-            }
-            else if (result < i_Min || result > i_Max)
-            {
-                UI.DisplayMessageNewLine($"Out of range. Please enter {i_Variable} between {i_Min} and {i_Max}.");
-            }
-            else
-            {
-                isValidInput = true;
-            }
+            Console.Write($"   {(char)('A' + i)}");
         }
 
-        return result;
-    }
+        Console.WriteLine();
+        string lineOfBoard = new string(' ', 2) + new string('=', (currentGameBoard.GetNumOfColumns() * 4) + 1);
+        Console.WriteLine(lineOfBoard);
 
-    public static char GetCharValues(char i_Min, char i_Max, string i_Variable)
-    {
-        char result = default;
-        bool isValidInput = false;
-
-        while (!isValidInput)
+        for (int row = 0; row < currentGameBoard.GetNumOfRows(); row++)
         {
-            UI.DisplayMessageNewLine($"Please enter your {i_Variable} (a single character between {i_Min} and {i_Max}):");
-            string userInput = UI.GetInput();
+            Console.Write(row + 1 + " |");
 
-            if (userInput.Length != 1)
+            for (int column = 0; column < currentGameBoard.GetNumOfColumns(); column++)
             {
-                UI.DisplayMessageNewLine("Invalid input. Please enter a single character.");
+                Console.Write($" {currentGameBoard.GetLetterOfCardByLocation(row, column)} |");
             }
-            else
-            {
-                result = userInput[0];
 
-                if (result < i_Min || result > i_Max)
-                {
-                    UI.DisplayMessageNewLine($"Out of range. Please enter {i_Variable} between {i_Min} and {i_Max}.");
-                }
-                else
-                {
-                    isValidInput = true;
-                }
-            }
+            Console.WriteLine();
+            Console.WriteLine(lineOfBoard);
         }
 
-        return result;
     }
 
-    public static void PrintBoard(/*ref(?) TODO i_CurrentGame.GetBoard()*/)
-    {
-    //    PRINT THE BOARD
-    //    TODO
-    //    for (int i = 0; i < i_gameBoard.m_W; i++)
-    //    {
-    //        if (i != 0)
-    //        {
-    //            Console.Write(i);
-    //        }
-    //    }
-    //    Console.WriteLine(" =========================");
-    }
-
-    public string GetBoardLocation(char i_MaxWidth, int i_MaxHeight)
+    private static string getLocation(MemoryGame i_CurrentGame)
     {
         bool isValidInput = false;
-        Console.Write("Please enter your desired location: ");
+        Console.Write("Please enter your desired card location: ");
         string desiredLocation = Console.ReadLine();
-
-        //A3
 
         while (!isValidInput)
         {
             if (desiredLocation.Length == 1 && desiredLocation[0] == 'Q')
             {
                 isValidInput = true;
+                desiredLocation = "Quit";
             }
-            else if (desiredLocation.Length == 2)
+            else if (desiredLocation.Length == 2 && isLetter(desiredLocation[0]) && isNumber(desiredLocation[1]))
             {
-                //TODO
-                //char firstChar = GetCharValues('A', i_MaxWidth, )
+                isValidInput = true;
             }
-
-            Console.Write("Invalid input! try again: ");
-            desiredLocation = Console.ReadLine();
+            else
+            {
+                Console.Write("Invalid input! try again: ");
+                desiredLocation = Console.ReadLine();
+            }
         }
 
         return desiredLocation;
     }
 
+    private static bool isLetter(char i_Letter)
+    {
+        return (i_Letter >= 'A' && i_Letter <= 'Z');
+    }
+
+    private static bool isNumber(char i_Number)
+    {
+        return (i_Number >= '0' && i_Number <= '9');
+    }
+
     public static bool AskPlayerForAnotherGame()
     {
-        Console.WriteLine("Do you want to play another game? (Y/N)"); 
-        //keepPlaying = UI.GetInput(); -- (Y/N)
+        bool isValidInput = false;
+        bool wantAnotherGame = false;
 
-        return true;
+        do
+        {
+            Console.WriteLine("Do you want to play another game? (Y/N)");
+            string userAnswer = Console.ReadLine();
+
+            if (userAnswer.Length == 1)
+            {
+                if (userAnswer[0] == 'Y')
+                {
+                    isValidInput = true;
+                    wantAnotherGame = true;
+                }
+                else if (userAnswer[0] == 'N')
+                {
+                    isValidInput = true;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input! try again.");
+                }
+            }
+        } while (!isValidInput);
+
+        return wantAnotherGame;
     }
 
     public static void EndedBecauseOfQ()
@@ -273,6 +320,21 @@ public class UI
     public static void ProgramEnded()
     {
         Console.WriteLine("Thank you for playing! see you next time.");
+        Thread.Sleep(2000);
+    }
 
+    public static void PrintGameStatistics(MemoryGame i_CurrentGame)
+    {
+        Console.WriteLine("The game came to an end, no more cards to flip.");
+
+        if (i_CurrentGame.IsTheGameEndedAsTie())
+        {
+            Console.WriteLine("It's a tie!");
+        }
+        else
+        {
+            Player winnerPlayer = i_CurrentGame.GetWinner();
+            Console.WriteLine($"The winner is {winnerPlayer.GetName()}, with a score of {winnerPlayer.GetScore()}");
+        }
     }
 }

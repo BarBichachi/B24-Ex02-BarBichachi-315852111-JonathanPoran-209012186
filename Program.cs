@@ -1,4 +1,7 @@
-﻿using MemoryGameLogic;
+﻿using System;
+
+using MemoryGameLogic;
+using MemoryGamePieces;
 
 namespace B24_Ex02_BarBichachi_315852111_JonathanPoran_209012186
 {
@@ -25,9 +28,7 @@ namespace B24_Ex02_BarBichachi_315852111_JonathanPoran_209012186
                 }
                 else
                 {
-                    // TODO
-                    // Sum game statistics
-                    // UI.GameStatistics(memoryGame);
+                    UI.PrintGameStatistics(memoryGame);
                     wantToPlay = UI.AskPlayerForAnotherGame();
                 }
             }

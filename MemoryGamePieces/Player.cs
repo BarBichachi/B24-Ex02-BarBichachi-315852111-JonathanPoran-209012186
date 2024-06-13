@@ -1,4 +1,4 @@
-﻿namespace MemoryGameLogic
+﻿namespace MemoryGamePieces
 {
     public class Player
     {
@@ -13,9 +13,21 @@
             m_PlayerType = i_PlayerType;
         }
 
+        public void ChangePlayer(string i_Name, ePlayerType i_PlayerType)
+        {
+            m_Name = i_Name;
+            m_Score = 0;
+            m_PlayerType = i_PlayerType;
+        }
+
         public void ResetScore()
         {
             m_Score = 0;
+        }
+
+        public void AddScore()
+        {
+            this.m_Score++;
         }
 
         public ePlayerType GetPlayerType()
@@ -23,41 +35,15 @@
             return m_PlayerType;
         }
 
-        public ePlayerTurnResult PlayTurn()
+        public string GetName()
         {
-            // Get player first choice & validate (CHECK IF HE PRESSED Q)
-            // Print the board again after the flip (flip & clear screen)
-
-            // Get player second choice & validate (CHECK IF HE PRESSED Q)
-            // Print the board again after the flip (flip & clear screen)
-
-            // Check if there's a match
-
-            // if (match)
-            //   cards need to have isflipped to be true 
-            //   player receives a point
-            //   return true
-
-            // else
-            //   wait 2 seconds
-            //   return card to beginning
-            //   return false because turn ended
-
-            return ePlayerTurnResult.DidNotFlipPair;
+            return m_Name;
         }
 
-        public string GetPlayerChoice()
+        public int GetScore()
         {
-            bool isValidChoice = false;
-            while (!isValidChoice)
-            {
-                string playerChoice = UI.GetInput();
-
-                if (playerChoice.Length == 2)
-                {
-
-                }
-            }
+            return m_Score;
         }
     }
 }
+

@@ -1,6 +1,5 @@
 ﻿using System;
-
-namespace MemoryGameLogic
+namespace MemoryGamePieces
 {
     public class Board
     {
@@ -16,7 +15,17 @@ namespace MemoryGameLogic
             s_Height = i_Height;
             m_NumOfPairsLeft = (i_Width * i_Height) / 2;
             generatePairsOnBoard();
-            shuffleBoard();
+            //shuffleBoard();
+        }
+
+        public int GetNumOfColumns()
+        {
+            return s_Width;
+        }
+
+        public int GetNumOfRows()
+        {
+            return s_Height;
         }
 
         private void generatePairsOnBoard()
@@ -29,7 +38,7 @@ namespace MemoryGameLogic
             {
                 for (int row = 0; row < s_Height; row++)
                 {
-                    m_Cards[row, column].m_Letter = letter;
+                    m_Cards[column, row]= new Card(letter);
 
                     if (!isSecondChar)
                     {
@@ -60,6 +69,19 @@ namespace MemoryGameLogic
             (i_FirstCard.m_Letter, i_SecondCard.m_Letter) = (i_SecondCard.m_Letter, i_FirstCard.m_Letter);
         }
 
+        public char GetLetterOfCardByStringLocation(string i_ValidLocation)
+        {
+            int column = (int)i_ValidLocation[0] - 'A';
+            int row = (int)(i_ValidLocation[1] - '1');
+
+            return m_Cards[column, row].m_Letter;
+        }
+
+        public char GetLetterOfCardByLocation(int i_Row, int i_Column)
+        {
+            return m_Cards[i_Column, i_Row].m_Letter;
+        }
+
         public void PairRevealed()
         {
             m_NumOfPairsLeft--;
@@ -67,6 +89,37 @@ namespace MemoryGameLogic
         public int GetNumOfPairsLeft()
         {
             return m_NumOfPairsLeft;
+        }
+
+        public void FlipCardFaceDown(string i_ValidLocation)
+        {
+            int column = (int)i_ValidLocation[0] - 'A';
+            int row = (int)(i_ValidLocation[1] - '1');
+
+            m_Cards[column, row].FlipCard();
+        }
+
+        public bool IsValidLocation(string i_desiredLocation)
+        {
+            int column = (int)i_desiredLocation[0] - 'A';
+            int row = (int)(i_desiredLocation[1] - '1');
+
+            return (column >= 0 && column < s_Width && row >= 0 && row < s_Height);
+        }
+
+        public bool TryFlipCard(string i_ValidLocation)
+        {
+            bool isManagedToFlip = false;
+            int column = (int)i_ValidLocation[0] - 'A';
+            int row = (int)(i_ValidLocation[1] - '1');
+
+            if (!(m_Cards[column, row].IsFaceUp()))
+            {
+                isManagedToFlip = true;
+                m_Cards[column, row].FlipCard();
+            }
+
+            return isManagedToFlip;
         }
     }
 }

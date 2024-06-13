@@ -1,4 +1,4 @@
-﻿namespace MemoryGameLogic
+﻿namespace MemoryGamePieces
 {
     public class Card
     {
